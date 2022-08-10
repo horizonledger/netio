@@ -105,6 +105,7 @@ func OpenNtchanOut(src string, ip string, Port int, verbose bool) Ntchan {
 func OpenNtchan(src string, dest string, verbose bool) Ntchan {
 	conn := OpenConn(dest)
 	//name := addr
-	BROAD_signal := make(chan string)
-	return ConnNtchan(conn, src, dest, verbose, BROAD_signal)
+	//BROAD_signal := make(chan string)
+	//return ConnNtchan(conn, src, dest, verbose, BROAD_signal)
+	return ConnNtchan(conn, src, dest, verbose)
 }
