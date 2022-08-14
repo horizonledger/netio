@@ -63,6 +63,7 @@ const (
 	CMD_CHAT         = "CHAT"
 	CMD_ERROR        = "ERROR"
 	CMD_REGISTERNAME = "REGNAME"
+	CMD_NUMPEERS     = "numpeers"
 	//CMD_HANDSHAKE_HELLO  = "HELLO"
 	//CMD_HANDSHAKE_STABLE = "STABLE"
 	//CMD_LOGIN            = "LOGIN"
@@ -74,6 +75,7 @@ var CMDS = []string{
 	CMD_TIME,
 	CMD_GETPEERS,
 	CMD_REGISTERPEER,
+	CMD_NUMPEERS,
 	CMD_PING,
 	CMD_PONG,
 	CMD_NUMACCOUNTS,
@@ -171,7 +173,7 @@ func ParseLine(msg_string string) (Message, error) {
 	msg_array := strings.Split(msg_string, " ")
 	//fmt.Println("error decoding line ", err)
 	//fmt.Println(msg_array)
-	var msgTypes = StrSlice{"REP", "REQ", "HEART", "BROAD"}
+	var msgTypes = StrSlice{"REP", "REQ", "HEART", "BROAD", "PUB"}
 
 	if len(msg_array) >= 2 {
 		if !msgTypes.Has(msg_array[0]) {
@@ -182,7 +184,7 @@ func ParseLine(msg_string string) (Message, error) {
 		msgu.MessageType = msg_array[0]
 		msgu.Command = msg_array[1]
 	} else {
-		fmt.Println("parse error")
+		fmt.Println("parse error ", msg_string)
 		return msgu, errors.New("parse error")
 	}
 	return msgu, nil

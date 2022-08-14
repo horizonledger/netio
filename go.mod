@@ -1,6 +1,6 @@
 module singula.finance/netio
 
-go 1.16
+go 1.19
 
 require (
 	github.com/pkg/errors v0.9.1

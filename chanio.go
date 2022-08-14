@@ -64,12 +64,11 @@ type Ntchan struct {
 }
 
 func vlog(ntchan Ntchan, s string) {
-	//verbose := ntchan.verbose
 	//fmt.Println(s)
-	// if verbose {
-	// 	log.Println("vlog ", s)
-	// }
-	log.Println("vlog ", s)
+	if ntchan.verbose {
+		log.Println("vlog ", s)
+	}
+	//log.Println("vlog ", s)
 }
 
 func logmsgd(ntchan Ntchan, src string, msg string) {
@@ -239,15 +238,18 @@ func RequestReply(ntchan Ntchan, msgString string) string {
 
 	var reply_msg string
 	//var reply_msg netio.Message
-	msg, _ := ParseLine(msgString)
+	//msg, _ := ParseLine(msgString)
+	msg, _ := ParseLineJson(msgString)
 
 	fmt.Sprintf("Handle cmd %v", msg.Command)
 
 	switch msg.Command {
 
 	case CMD_PING:
-		reply_msg := "REP PONG"
-		return reply_msg
+		rmsg := Message{MessageType: "REP", Command: "PONG"}
+		//reply_msg := "REP PONG"
+		reply_msg, _ := json.Marshal(rmsg)
+		return string(reply_msg)
 		//reply := HandlePing(msg)
 		//msg := netio.Message{MessageType: netio.REP, Command: netio.CMD_BALANCE, Data: []byte(balJson)}
 		//reply_msg = netio.ToJSONMessage(reply)
@@ -388,7 +390,8 @@ func ReadProcessor(ntchan Ntchan) {
 			logmsge(ntchan, ntchan.Alias, ntchan.DestName, "ReadProcessor", msgString) //, ntchan.Reader_processed)
 
 			//msg := FromJSON(msgString)
-			msg, err := ParseLine(msgString)
+			//msg, err := ParseLine(msgString)
+			msg, err := ParseLineJson(msgString)
 
 			if err == nil {
 				logmsgc(ntchan, ntchan.SrcName, "ReadProcessor Msg", msg.MessageType)
