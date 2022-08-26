@@ -54,6 +54,7 @@ type Ntchan struct {
 	//PUB_time_quit chan int
 	verbose       bool
 	lastheartbeat time.Time
+	quitchan      chan bool
 	// SUB_request_out   chan string
 	// SUB_request_in    chan string
 	// UNSUB_request_out chan string
@@ -143,6 +144,9 @@ func NetConnectorSetup(ntchan Ntchan) {
 	// read_time_chan := 300 * time.Millisecond
 	// write_loop_time := 300 * time.Millisecond
 
+	//quite all channel
+	ntchan.quitchan = make(chan bool)
+
 	//reads from the actual "physical" network
 	go ReadLoop(ntchan)
 	//process of reads
@@ -204,31 +208,40 @@ func WriteLoop(ntchan Ntchan, d time.Duration) {
 	}
 }
 
+//read from network and put in reader channel queue
 func ReadLoop(ntchan Ntchan) {
 	vlog(ntchan, "init ReadLoop "+ntchan.SrcName+" "+ntchan.DestName)
 	d := 300 * time.Millisecond
 	//msg_reader_total := 0
 	for {
-		//read from network and put in channel
-		vlog(ntchan, "iter ReadLoop "+ntchan.SrcName+" "+ntchan.DestName)
-		msg, err := NetMsgRead(ntchan)
-		if err != nil {
+		select {
+		case <-ntchan.quitchan:
+			fmt.Println("quit readloop")
+			return
 
-		}
-		//handle cases
-		//currently can be empty or len, shoudl fix one style
-		if len(msg) > 0 { //&& msg != EMPTY_MSG {
-			vlog(ntchan, "ntwk read => "+msg)
-			logmsgc(ntchan, ntchan.SrcName, "ReadLoop", msg)
-			vlog(ntchan, "put on Reader queue "+msg)
-			//put in the queue to process
-			ntchan.Reader_queue <- msg
-		}
+		default:
+			//read from network and put in channel
+			vlog(ntchan, "iter ReadLoop "+ntchan.SrcName+" "+ntchan.DestName)
+			msg, err := NetMsgRead(ntchan)
+			if err != nil {
 
-		time.Sleep(d)
-		//fix: need ntchan to be a pointer
-		//msg_reader_total++
+			}
+			//handle cases
+			//currently can be empty or len, shoudl fix one style
+			if len(msg) > 0 { //&& msg != EMPTY_MSG {
+				vlog(ntchan, "ntwk read => "+msg)
+				logmsgc(ntchan, ntchan.SrcName, "ReadLoop", msg)
+				vlog(ntchan, "put on Reader queue "+msg)
+				//put in the queue to process
+				ntchan.Reader_queue <- msg
+			}
+
+			time.Sleep(d)
+			//fix: need ntchan to be a pointer
+			//msg_reader_total++
+		}
 	}
+
 }
 
 //TODO move to implementation
@@ -246,13 +259,26 @@ func RequestReply(ntchan Ntchan, msgString string) string {
 	switch msg.Command {
 
 	case CMD_PING:
-		rmsg := Message{MessageType: "REP", Command: "PONG"}
+		rmsg := MessageJSON{MessageType: "REP", Command: "PONG"}
 		//reply_msg := "REP PONG"
 		reply_msg, _ := json.Marshal(rmsg)
 		return string(reply_msg)
 		//reply := HandlePing(msg)
 		//msg := netio.Message{MessageType: netio.REP, Command: netio.CMD_BALANCE, Data: []byte(balJson)}
 		//reply_msg = netio.ToJSONMessage(reply)
+
+	case CMD_EXIT:
+		//TODO close chans?
+		err := ntchan.Conn.(*net.TCPConn).SetLinger(0)
+		if err != nil {
+			log.Printf("Error when setting linger: %s", err)
+		} else {
+			fmt.Println("connection closed")
+			//quite all
+			//ntchan.Conn.
+			ntchan.quitchan <- true
+
+		}
 
 	case CMD_TIME:
 		dt := time.Now()
@@ -270,6 +296,19 @@ func RequestReply(ntchan Ntchan, msgString string) string {
 	case CMD_REGISTERPEER:
 		reply_msg := "todo"
 		return reply_msg
+
+	case CMD_BALANCE:
+		//TODO
+		//balance := t.Mgr.State.Accounts[a]
+		//fmt.Println("balance for ", a, balance, t.Mgr.State.Accounts)
+
+		balance := 100
+		balJson, _ := json.Marshal(balance)
+
+		//rmsg := MessageJSON{MessageType: "REP", Command: "BALANCE", Data: &balJson}
+		rmsg := Message{MessageType: "REP", Command: "BALANCE", Data: balJson}
+		reply_msg, _ := json.Marshal(rmsg)
+		return string(reply_msg)
 
 	default:
 		errormsg := "Error: not found command"
@@ -381,45 +420,56 @@ func ReadProcessorJson(ntchan Ntchan) {
 func ReadProcessor(ntchan Ntchan) {
 
 	for {
-		logmsgd(ntchan, "ReadProcessor", "loop")
-		msgString := <-ntchan.Reader_queue
-		logmsgd(ntchan, "ReadProcessor", msgString)
+		select {
+		case <-ntchan.quitchan:
+			fmt.Println("quit ReadProcessor")
+			return
 
-		if len(msgString) > 0 {
-			//logmsge(ntchan, ntchan.SrcName, ntchan.DestName, "ReadProcessor", msgString) //, ntchan.Reader_processed)
-			logmsge(ntchan, ntchan.Alias, ntchan.DestName, "ReadProcessor", msgString) //, ntchan.Reader_processed)
+		default:
+			logmsgd(ntchan, "ReadProcessor", "loop")
+			msgString := <-ntchan.Reader_queue
+			logmsgd(ntchan, "ReadProcessor", msgString)
 
-			//msg := FromJSON(msgString)
-			//msg, err := ParseLine(msgString)
-			msg, err := ParseLineJson(msgString)
+			if len(msgString) > 0 {
+				//logmsge(ntchan, ntchan.SrcName, ntchan.DestName, "ReadProcessor", msgString) //, ntchan.Reader_processed)
+				logmsge(ntchan, ntchan.Alias, ntchan.DestName, "ReadProcessor", msgString) //, ntchan.Reader_processed)
 
-			if err == nil {
-				logmsgc(ntchan, ntchan.SrcName, "ReadProcessor Msg", msg.MessageType)
+				//msg := FromJSON(msgString)
+				//msg, err := ParseLine(msgString)
+				msg, err := ParseLineJson(msgString)
 
-				switch msg.MessageType {
-				case "REQ":
-					ntchan.REQ_in <- msgString
+				if err == nil {
+					logmsgc(ntchan, ntchan.SrcName, "ReadProcessor Msg", msg.MessageType)
 
-				case "REP":
-					ntchan.REP_in <- msgString
+					switch msg.MessageType {
+					case "REQ":
+						ntchan.REQ_in <- msgString
 
-				case "BROAD":
-					ntchan.BROAD_in <- msgString
+					case "REP":
+						ntchan.REP_in <- msgString
 
-				case "HEART":
-					ntchan.HEART_in <- msgString
+					case "BROAD":
+						ntchan.BROAD_in <- msgString
 
+					case "HEART":
+						ntchan.HEART_in <- msgString
+
+						//TODO
+						//case PUB
+						//case SUB
+
+					}
+
+					//handle unknown command
+					//reply := "echo >>> " + msgString
+					//ntchan.Writer_queue <- reply
+				} else {
+					//TODO currently no reply on fault messages
+					//reply := "error parsing >>> " + msgString + " (" + ntchan.DestName + ")"
+					//ntchan.Writer_queue <- reply
 				}
 
-				//handle unknown command
-				//reply := "echo >>> " + msgString
-				//ntchan.Writer_queue <- reply
-			} else {
-				//TODO currently no reply on fault messages
-				//reply := "error parsing >>> " + msgString + " (" + ntchan.DestName + ")"
-				//ntchan.Writer_queue <- reply
 			}
-
 		}
 	}
 

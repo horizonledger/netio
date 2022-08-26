@@ -1,6 +1,7 @@
 package netio
 
 import (
+	"encoding/json"
 	"testing"
 )
 
@@ -27,25 +28,32 @@ func TestProcesser(t *testing.T) {
 	NetConnectorSetupMock(ntchan)
 
 	//go func() { ntchan.Reader_queue <- "REQ PING" }()
-	go func() { ntchan.Reader_queue <- "REQ PING" }()
+	m := MessageJSON{MessageType: "REQ", Command: "PING"}
+	jm, _ := json.Marshal(m)
+	if string(jm) !=
+		"{\"messagetype\":\"REQ\",\"command\":\"PING\"}" {
+		t.Error("encoding error: ", string(jm))
+	}
+
+	go func() { ntchan.Reader_queue <- string(jm) }()
 
 	readout := <-ntchan.REQ_in
 
-	if readout != "REQ PING" {
-		t.Error("process error")
+	if readout != "{\"messagetype\":\"REQ\",\"command\":\"PING\"}" {
+		t.Error("process error ", readout)
 	}
 
-	go func() { ntchan.Reader_queue <- "REQ PING" }()
+	go func() { ntchan.Reader_queue <- string(jm) }()
 
 	readout2 := <-ntchan.REQ_in
 
-	if readout2 == "REQ PING" {
+	if readout2 == "{\"messagetype\":\"REQ\",\"command\":\"PING\"}" {
 		//ntchan.REP_out <- "REP PONG"
 	}
 
 	reply := RequestReply(ntchan, readout2)
 
-	if reply != "REP PONG" {
+	if reply != "{\"messagetype\":\"REP\",\"command\":\"PONG\"}" {
 		t.Error("process reply error ", reply)
 	}
 

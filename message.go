@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+//uncomment NOT USED
+
 //messages. currently uses json and some hacks to make it somewhat flexible mechanism
 //needs to be ported to edn for which the basics exist
 
@@ -41,6 +43,7 @@ const (
 	CMD_REGISTERALIAS  = "REGISTERALIAS"
 	CMD_GETPEERS       = "GETPEERS"
 	CMD_TIME           = "TIME"
+	CMD_EXIT           = "EXIT"
 	CMD_ACCOUNTS       = "ACCOUNTS"
 	CMD_BALANCE        = "BALANCE" //get balance of account
 	CMD_BLOCKHEIGHT    = "BLOCKHEIGHT"

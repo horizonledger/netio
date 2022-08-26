@@ -6,10 +6,15 @@ import (
 	"fmt"
 )
 
-type Optional[T any] struct {
-    Defined bool
-    Value   *T
-}
+// type Optional[T any] struct {
+//     Defined bool
+//     Value   *T
+// }
+
+// func (o *Optional[T]) UnmarshalJSON(data []byte) error {
+// 	o.Defined = true
+// 	return json.Unmarshal(data, &o.Value)
+// }
 
 type MessageJSON struct {
 	//type of message i.e. the communications protocol
@@ -17,10 +22,9 @@ type MessageJSON struct {
 	//Specific message command
 	Command string `json:"command"`
 	//any data, can be empty. gets interpreted downstream to other structs
-	//https://stackoverflow.com/questions/36601367/json-field-set-to-null-vs-field-not-there
-	Data json.RawMessage `json:"data,omitempty"`
+	Data *json.RawMessage `json:"data,omitempty"`
+	//Data Optional[json.RawMessage] `json:"data,omitempty"`
 	//timestamp
-	//Layer *string `json:"layer,omitempty"`
 }
 
 //marshal to json, check command
@@ -28,12 +32,25 @@ func NewJSONMessage(m Message) (MessageJSON, error) {
 	//fmt.Println("NewJSONMessage")
 	valid := validCMD(m.Command)
 	if valid {
-		//		if m.Data != nil {
 		return MessageJSON{
 			m.MessageType,
 			m.Command,
-			m.Data,
+			&m.Data,
 		}, nil
+
+		// if m.Data != nil {
+		// 	return MessageJSON{
+		// 		m.MessageType,
+		// 		m.Command,
+		// 		m.Data,
+		// 	}, nil
+		// } else {
+		// 	return MessageJSON{
+		// 		m.MessageType,
+		// 		m.Command,
+		// 		nil,
+		// 	}, nil
+		// }
 
 	} else {
 		fmt.Println("not valid cmd")
@@ -51,7 +68,9 @@ func ParseLineJson(msg_string string) (Message, error) {
 	//TODO parse Data
 	var msgu Message
 	err := json.Unmarshal([]byte(msg_string), &msgu)
-	fmt.Println("error decoding json ", err, msg_string)
+	if err != nil {
+		fmt.Println("error decoding json ", err, msg_string)
+	}
 	var msgTypes = StrSlice{"REP", "REQ", "HEART", "BROAD", "PUB"}
 
 	if !msgTypes.Has(msgu.MessageType) {

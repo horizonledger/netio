@@ -15,6 +15,7 @@ import (
 	"log"
 	"net"
 	"strconv"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -54,24 +55,33 @@ func NetRead(ntchan Ntchan, delim byte) (string, error) {
 
 	var buffer bytes.Buffer
 	for {
-		//READLINE uses \n
-		fmt.Println("NetRead")
-		ba, isPrefix, err := reader.ReadLine()
-		fmt.Println(">> ", string(ba))
-		if err != nil {
-			if err == io.EOF {
+
+		select {
+		case <-ntchan.quitchan:
+			fmt.Println("quit ReadProcessor")
+			return buffer.String(), nil
+		default:
+			//READLINE uses \n
+			dt := time.Now()
+			fmt.Println("netread (", dt.String(), ")")
+
+			ba, isPrefix, err := reader.ReadLine()
+			fmt.Println(">> ", string(ba))
+			if err != nil {
+				if err == io.EOF {
+					break
+				}
+				return "", err
+			}
+			buffer.Write(ba)
+			if !isPrefix {
 				break
 			}
-			return "", err
-		}
-		buffer.Write(ba)
-		if !isPrefix {
-			break
-		}
 
-		fmt.Println("buffer ", buffer)
+			fmt.Println("buffer ", buffer)
+		}
+		return buffer.String(), nil
 	}
-	return buffer.String(), nil
 }
 
 func NetMsgRead(ntchan Ntchan) (string, error) {
