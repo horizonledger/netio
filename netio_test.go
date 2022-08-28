@@ -30,12 +30,8 @@ func TestProcesser(t *testing.T) {
 	//go func() { ntchan.Reader_queue <- "REQ PING" }()
 	m := MessageJSON{MessageType: "REQ", Command: "PING"}
 	jm, _ := json.Marshal(m)
-	if string(jm) !=
-		"{\"messagetype\":\"REQ\",\"command\":\"PING\"}" {
-		t.Error("encoding error: ", string(jm))
-	}
 
-	go func() { ntchan.Reader_queue <- string(jm) }()
+	ntchan.Reader_queue <- string(jm)
 
 	readout := <-ntchan.REQ_in
 
@@ -43,18 +39,10 @@ func TestProcesser(t *testing.T) {
 		t.Error("process error ", readout)
 	}
 
-	go func() { ntchan.Reader_queue <- string(jm) }()
+	// reply := RequestReply(ntchan, readout2)
 
-	readout2 := <-ntchan.REQ_in
-
-	if readout2 == "{\"messagetype\":\"REQ\",\"command\":\"PING\"}" {
-		//ntchan.REP_out <- "REP PONG"
-	}
-
-	reply := RequestReply(ntchan, readout2)
-
-	if reply != "{\"messagetype\":\"REP\",\"command\":\"PONG\"}" {
-		t.Error("process reply error ", reply)
-	}
+	// if reply != "{\"messagetype\":\"REP\",\"command\":\"PONG\"}" {
+	// 	t.Error("process reply error ", reply)
+	// }
 
 }

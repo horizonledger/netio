@@ -22,7 +22,7 @@ type MessageJSON struct {
 	//Specific message command
 	Command string `json:"command"`
 	//any data, can be empty. gets interpreted downstream to other structs
-	Data *json.RawMessage `json:"data,omitempty"`
+	Data json.RawMessage `json:"data,omitempty"`
 	//Data Optional[json.RawMessage] `json:"data,omitempty"`
 	//timestamp
 }
@@ -35,7 +35,7 @@ func NewJSONMessage(m Message) (MessageJSON, error) {
 		return MessageJSON{
 			m.MessageType,
 			m.Command,
-			&m.Data,
+			m.Data,
 		}, nil
 
 		// if m.Data != nil {
@@ -64,9 +64,9 @@ func ToJSONMessage(m Message) string {
 	return string(jsonmsg)
 }
 
-func ParseLineJson(msg_string string) (Message, error) {
+func ParseLineJson(msg_string string) (MessageJSON, error) {
 	//TODO parse Data
-	var msgu Message
+	var msgu MessageJSON
 	err := json.Unmarshal([]byte(msg_string), &msgu)
 	if err != nil {
 		fmt.Println("error decoding json ", err, msg_string)
