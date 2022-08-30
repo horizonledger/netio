@@ -1,11 +1,10 @@
 package crypto
 
 import (
-	"encoding/hex"
 	"testing"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/polygonledger/node/block"
+	//"github.com/polygonledger/node/block"
 )
 
 func TestBasicSign(t *testing.T) {
@@ -105,33 +104,6 @@ func TestGenkeys(t *testing.T) {
 
 	if PubKeyToHex(keypair.PubKey) == "" {
 		t.Error("keypair is nil")
-	}
-
-}
-
-func TestSignTx(t *testing.T) {
-	//sign
-	keypair := PairFromSecret("test")
-	var tx block.Tx
-	//s := block.AccountFromString("Pa033f6528cc1")
-	s := "Pa033f6528cc1"
-	r := s //TODO
-	tx = block.Tx{Nonce: 0, Amount: 0, Sender: s, Receiver: r}
-
-	signature := SignTx(tx, keypair.PrivKey)
-	sighex := hex.EncodeToString(signature.Serialize())
-
-	if sighex == "" {
-		t.Error("hex empty")
-	}
-	tx.Signature = sighex
-	tx.SenderPubkey = PubKeyToHex(keypair.PubKey)
-
-	//verify
-	verified := VerifyTxSig(tx)
-
-	if !verified {
-		t.Error("verify tx fail")
 	}
 
 }
