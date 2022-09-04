@@ -135,7 +135,8 @@ func ConnNtchanStub(SrcName string, DestName string) Ntchan {
 }
 
 //all major processes to operate
-func NetConnectorSetup(ntchan Ntchan, RequestReplyF func(Ntchan, string) string) {
+//RequestReplyF func(Ntchan, string) string
+func NetConnectorSetup(ntchan Ntchan) {
 
 	vlog(ntchan, "NetConnectorSetup "+ntchan.SrcName+" "+ntchan.DestName)
 
@@ -159,7 +160,7 @@ func NetConnectorSetup(ntchan Ntchan, RequestReplyF func(Ntchan, string) string)
 
 	//node logic
 
-	go RequestReplyLoop(ntchan, RequestReplyF)
+	//go RequestReplyLoop(ntchan, RequestReplyF)
 
 	go HeartBeatProcess(ntchan)
 
@@ -190,8 +191,7 @@ func NetConnectorSetupEcho(ntchan Ntchan) {
 	//go HeartbeatPub(ntchan)
 
 	//node logic
-
-	//go RequestReplyLoop(ntchan, RequestReplyF)
+	//go RequestReplyLoop()
 
 	go HeartBeatProcess(ntchan)
 
@@ -274,16 +274,6 @@ func ReadLoop(ntchan Ntchan) {
 		}
 	}
 
-}
-
-func RequestReplyLoop(ntchan Ntchan, RequestReplyF func(Ntchan, string) string) {
-	for {
-		msg := <-ntchan.REQ_in
-		//fmt.Println("request %s", msg)
-		vlog(ntchan, "request "+msg)
-		reply := RequestReplyF(ntchan, msg)
-		ntchan.REP_out <- reply
-	}
 }
 
 func HeartBeatProcess(ntchan Ntchan) {
@@ -398,16 +388,18 @@ func ReadProcessor(ntchan Ntchan) {
 						//TODO
 						//case PUB
 						//case SUB
-
+					default:
+						//reply := "echo >>> " + msgString
+						//handle unknown command
+						ntchan.Writer_queue <- "unknown command"
 					}
 
-					//handle unknown command
-					//reply := "echo >>> " + msgString
-					//ntchan.Writer_queue <- reply
 				} else {
 					//TODO currently no reply on fault messages
 					//reply := "error parsing >>> " + msgString + " (" + ntchan.DestName + ")"
 					//ntchan.Writer_queue <- reply
+					reply := "error parsing >>> " + msgString + " (" + ntchan.DestName + ")"
+					ntchan.Writer_queue <- reply
 				}
 
 			}

@@ -70,6 +70,7 @@ func ParseLineJson(msg_string string) (MessageJSON, error) {
 	err := json.Unmarshal([]byte(msg_string), &msgu)
 	if err != nil {
 		fmt.Println("error decoding json ", err, msg_string)
+		return msgu, errors.New("error decoding json")
 	}
 	var msgTypes = StrSlice{"REP", "REQ", "HEART", "BROAD", "PUB"}
 
