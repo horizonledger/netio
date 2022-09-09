@@ -24,6 +24,15 @@ func ReadKeys(keysfile string) Keypair {
 	return kh
 }
 
+func ReadKeysH(keysfile string) KeypairH {
+
+	log.Println("read keys from ", keysfile)
+	dat, _ := ioutil.ReadFile(keysfile)
+	var kpa KeypairH
+	json.Unmarshal([]byte(dat), &kpa)
+	return kpa
+}
+
 // func CreateKeypairFormat(privkey string, pubkey_string string, address string) string {
 // 	mp := map[string]string{"privkey": parser.StringWrap(privkey), "pubkey": parser.StringWrap(pubkey_string), "address": parser.StringWrap(address)}
 // 	m := parser.MakeMap(mp)
@@ -46,6 +55,11 @@ func WriteKeys(kp Keypair, keysfile string) {
 	kh := KeypairH{PrivKey: privHex, PubKey: pubkeyHex, Address: address}
 	//s, _ := json.Marshal(kpa)
 	s, _ := json.Marshal(kh)
+	ioutil.WriteFile(keysfile, []byte(s), 0644)
+}
+
+func WriteKeysH(kp KeypairH, keysfile string) {
+	s, _ := json.Marshal(kp)
 	ioutil.WriteFile(keysfile, []byte(s), 0644)
 }
 

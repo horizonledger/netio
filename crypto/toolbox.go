@@ -35,7 +35,7 @@ type KeypairPub struct {
 	Address string          `json:"address"`
 }
 
-//TODO only from pubkey type
+// TODO only from pubkey type
 func Address(pubkey string) string {
 	return "P" + GetSHAHash(pubkey)[:12]
 }
@@ -55,6 +55,14 @@ func PairFromSecret(secret string) Keypair {
 	privKey, pubKey := btcec.PrivKeyFromBytes(btcec.S256(), []byte(hashedsecret))
 	kp := Keypair{PrivKey: *privKey, PubKey: *pubKey}
 	return kp
+}
+
+func KeypairToHex(k Keypair) KeypairH {
+	return KeypairH{PrivKey: PrivKeyToHex(k.PrivKey), PubKey: PubKeyToHex(k.PubKey), Address: Address(PubKeyToHex(k.PubKey))}
+}
+
+func KeypairFromHex(k KeypairH) Keypair {
+	return Keypair{PrivKey: PrivKeyFromHex(k.PrivKey), PubKey: PubKeyFromHex(k.PubKey)}
 }
 
 func PrivKeyToHex(privkey btcec.PrivateKey) string {
