@@ -1,6 +1,9 @@
 package crypto
 
 import (
+	"encoding/json"
+	//"fmt"
+	"io/ioutil"
 	"testing"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
@@ -123,5 +126,34 @@ func TestAdress(t *testing.T) {
 	if a[0] != 'P' {
 		t.Error("adress stars with P")
 	}
+
+}
+
+func TestSerializeKeys(t *testing.T) {
+	//TODO
+
+	// keyfile := "keys.wfe"
+
+	// keypair := PairFromSecret("test")
+	// // WriteKeys(keypair, keyfile)
+
+	// WriteKeysEC(keypair, keyfile)
+
+	// dat, _ := ioutil.ReadFile(keyfile)
+
+	// if len(dat) == 0 {
+	// 	t.Error("data lenght")
+	// }
+
+	// var kp Keypair
+	// json.Unmarshal(dat, &kp)
+
+	// if kp != keypair {
+	// 	t.Error("keypair encode error ", keypair, kp)
+	// }
+
+	// if PrivKeyToHex(kp.PrivKey) != "" {
+	// 	t.Error("reading keys in error")
+	// }
 
 }

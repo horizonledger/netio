@@ -15,7 +15,6 @@ import (
 	"log"
 	"net"
 	"strconv"
-	"time"
 
 	"github.com/pkg/errors"
 )
@@ -47,6 +46,7 @@ func NetWrite(ntchan Ntchan, content string) (int, error) {
 // 	//conn.Read(buf[0:])
 // }
 
+//network reader. reads on network until EOF is reache
 func NetRead(ntchan Ntchan, delim byte) (string, error) {
 	//log.Println("NetRead ", ntchan.SrcName, ntchan.DestName)
 	reader := bufio.NewReader(ntchan.Conn)
@@ -62,23 +62,30 @@ func NetRead(ntchan Ntchan, delim byte) (string, error) {
 			return buffer.String(), nil
 		default:
 			//READLINE uses \n
-			dt := time.Now()
-			fmt.Println("netread (", dt.String(), ")")
+			//dt := time.Now()
+			//fmt.Println("netread (", dt.String(), ")")
+			//fmt.Println("netread (", dt.String(), ")")
 
 			ba, isPrefix, err := reader.ReadLine()
-			fmt.Println(">> ", string(ba))
+			fmt.Println(">> read: ", string(ba))
 			if err != nil {
+				fmt.Println("error ", err)
 				if err == io.EOF {
-					break
+					ntchan.Conn.Close()
+					return buffer.String(), errors.New("EOF")
+					//break
 				}
 				return "", err
+			}
+			if string(ba) == " " || string(ba) == "" {
+				fmt.Println("empty message")
 			}
 			buffer.Write(ba)
 			if !isPrefix {
 				break
 			}
 
-			fmt.Println("buffer ", buffer)
+			//fmt.Println("buffer ", buffer)
 		}
 		return buffer.String(), nil
 	}

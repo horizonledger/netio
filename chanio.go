@@ -255,9 +255,12 @@ func ReadLoop(ntchan Ntchan) {
 			//read from network and put in channel
 			vlog(ntchan, "iter ReadLoop "+ntchan.SrcName+" "+ntchan.DestName)
 			msg, err := NetMsgRead(ntchan)
-			if err != nil {
 
+			//handle close connection
+			if err != nil {
+				return
 			}
+
 			//handle cases
 			//currently can be empty or len, shoudl fix one style
 			if len(msg) > 0 { //&& msg != EMPTY_MSG {

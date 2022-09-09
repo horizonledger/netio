@@ -36,7 +36,7 @@ func ReadKeys(keysfile string) Keypair {
 // 	return m
 // }
 
-//write keys to file with format
+// write keys to file with format
 func WriteKeys(kp Keypair, keysfile string) {
 	pubkeyHex := PubKeyToHex(kp.PubKey)
 	privHex := PrivKeyToHex(kp.PrivKey)
@@ -46,6 +46,12 @@ func WriteKeys(kp Keypair, keysfile string) {
 	kh := KeypairH{PrivKey: privHex, PubKey: pubkeyHex, Address: address}
 	//s, _ := json.Marshal(kpa)
 	s, _ := json.Marshal(kh)
+	ioutil.WriteFile(keysfile, []byte(s), 0644)
+}
+
+func WriteKeysEC(kp Keypair, keysfile string) {
+	//s, _ := json.Marshal(kpa)
+	s, _ := json.Marshal(kp)
 	ioutil.WriteFile(keysfile, []byte(s), 0644)
 }
 
