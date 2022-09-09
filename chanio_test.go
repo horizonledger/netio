@@ -11,18 +11,20 @@ func TestBasicNetio(t *testing.T) {
 
 	//establish network
 	ntchan := ConnNtchanStub("test", "testout")
-	NetConnectorSetupMockEcho(ntchan)
+	go NetConnectorSetupMockEcho(ntchan)
 
 	//put message in request queue
-	//ntchan.REQ_in <- string(jm)
 	ntchan.Reader_queue <- "test"
-	fmt.Println("????....")
 
-	//go func() {
 	fmt.Println("wait")
 	req := <-ntchan.Writer_queue
-	fmt.Println("request received ", req)
-	ntchan.REP_out <- "ok"
+
+	if req != "echo: test" {
+		t.Error("wrong echo message")
+	}
+
+	//fmt.Println("request received ", req)
+	//ntchan.REP_out <- "ok"
 
 	//}()
 
