@@ -23,20 +23,25 @@ func TestBasicNetio(t *testing.T) {
 		t.Error("wrong echo message")
 	}
 
-	//fmt.Println("request received ", req)
-	//ntchan.REP_out <- "ok"
+}
 
-	//}()
+func RequestReplyLoop(ntchan netio.Ntchan) {
+	for {
+		msg := <-ntchan.REQ_in
+		m := MessageJSON{MessageType: "REP", Command: "PONG"}
+		jm, _ := json.Marshal(m)
+		reply := jm
+		ntchan.REP_out <- reply
+	}
+}
 
-	//read from reply
-	// readout := <-ntchan.REP_out
-	// fmt.Println(readout)
+// TODO
+func TestNetioPingPong(t *testing.T) {
 
-	// m = MessageJSON{MessageType: "REP", Command: "PONG"}
-	// jm, _ = json.Marshal(m)
+	m := MessageJSON{MessageType: "REQ", Command: "PING"}
+	jm, _ := json.Marshal(m)
 
-	// if readout != string(jm) {
-	// 	t.Error("process reply error ", readout)
-	// }
+	ntchan.Reader_queue <- string(jm)
 
+	go RequestReplyLoop(ntchan)
 }
