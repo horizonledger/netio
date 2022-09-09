@@ -132,25 +132,26 @@ func TestAdress(t *testing.T) {
 func TestSerializeKeys(t *testing.T) {
 	//TODO
 
-	// keyfile := "keys.wfe"
+	keyfile := "keys.wfe"
 
-	// keypair := PairFromSecret("test")
+	keypair := PairFromSecret("test")
 	// // WriteKeys(keypair, keyfile)
 
-	// WriteKeysEC(keypair, keyfile)
+	WriteKeysEC(keypair, keyfile)
 
-	// dat, _ := ioutil.ReadFile(keyfile)
+	dat, _ := ioutil.ReadFile(keyfile)
 
-	// if len(dat) == 0 {
-	// 	t.Error("data lenght")
-	// }
+	if len(dat) == 0 {
+		t.Error("data lenght")
+	}
 
-	// var kp Keypair
-	// json.Unmarshal(dat, &kp)
+	var kp Keypair
+	json.Unmarshal(dat, &kp)
 
-	// if kp != keypair {
-	// 	t.Error("keypair encode error ", keypair, kp)
-	// }
+	//TODO fails
+	if kp != keypair {
+		t.Error("keypair encode error ", keypair, kp)
+	}
 
 	// if PrivKeyToHex(kp.PrivKey) != "" {
 	// 	t.Error("reading keys in error")

@@ -25,23 +25,23 @@ func TestBasicNetio(t *testing.T) {
 
 }
 
-func RequestReplyLoop(ntchan netio.Ntchan) {
-	for {
-		msg := <-ntchan.REQ_in
-		m := MessageJSON{MessageType: "REP", Command: "PONG"}
-		jm, _ := json.Marshal(m)
-		reply := jm
-		ntchan.REP_out <- reply
-	}
-}
+// func RequestReplyLoop(ntchan Ntchan) {
+// 	for {
+// 		msg := <-ntchan.REQ_in
+// 		m := MessageJSON{MessageType: "REP", Command: "PONG"}
+// 		jm, _ := json.Marshal(m)
+// 		reply := jm
+// 		ntchan.REP_out <- reply
+// 	}
+// }
 
-// TODO
-func TestNetioPingPong(t *testing.T) {
+// // TODO
+// func TestNetioPingPong(t *testing.T) {
 
-	m := MessageJSON{MessageType: "REQ", Command: "PING"}
-	jm, _ := json.Marshal(m)
+// 	m := MessageJSON{MessageType: "REQ", Command: "PING"}
+// 	jm, _ := json.Marshal(m)
 
-	ntchan.Reader_queue <- string(jm)
+// 	ntchan.Reader_queue <- string(jm)
 
-	go RequestReplyLoop(ntchan)
-}
+// 	go RequestReplyLoop(ntchan)
+// }
