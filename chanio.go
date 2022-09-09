@@ -86,7 +86,7 @@ func logmsge(ntchan Ntchan, name string, src string, dest string, msg string) {
 	vlog(ntchan, s)
 }
 
-//func ConnNtchan(conn net.Conn, SrcName string, DestName string, verbose bool, BROAD_signal chan string) Ntchan {
+// func ConnNtchan(conn net.Conn, SrcName string, DestName string, verbose bool, BROAD_signal chan string) Ntchan {
 func ConnNtchan(conn net.Conn, SrcName string, DestName string, verbose bool) Ntchan {
 	var ntchan Ntchan
 	ntchan.Reader_queue = make(chan string)
@@ -114,7 +114,7 @@ func ConnNtchan(conn net.Conn, SrcName string, DestName string, verbose bool) Nt
 	return ntchan
 }
 
-//for testing
+// for testing
 func ConnNtchanStub(SrcName string, DestName string) Ntchan {
 	var ntchan Ntchan
 	ntchan.Reader_queue = make(chan string)
@@ -134,8 +134,8 @@ func ConnNtchanStub(SrcName string, DestName string) Ntchan {
 	return ntchan
 }
 
-//all major processes to operate
-//RequestReplyF func(Ntchan, string) string
+// all major processes to operate
+// RequestReplyF func(Ntchan, string) string
 func NetConnectorSetup(ntchan Ntchan) {
 
 	vlog(ntchan, "NetConnectorSetup "+ntchan.SrcName+" "+ntchan.DestName)
@@ -220,7 +220,7 @@ func BroadSignalSetup() {
 
 }
 
-//Net
+// Net
 func WriteLoop(ntchan Ntchan, d time.Duration) {
 	//msg_writer_total := 0
 	for {
@@ -240,7 +240,7 @@ func WriteLoop(ntchan Ntchan, d time.Duration) {
 	}
 }
 
-//read from network and put in reader channel queue
+// read from network and put in reader channel queue
 func ReadLoop(ntchan Ntchan) {
 	vlog(ntchan, "init ReadLoop "+ntchan.SrcName+" "+ntchan.DestName)
 	d := 300 * time.Millisecond
@@ -301,6 +301,8 @@ func HeartBeatProcess(ntchan Ntchan) {
 }
 
 //read from reader queue and process by forwarding to right channel
+
+// TODO remove
 func ReadProcessorJson(ntchan Ntchan) {
 
 	for {
@@ -348,8 +350,8 @@ func ReadProcessorJson(ntchan Ntchan) {
 
 }
 
-//read from reader queue and echo all messages back
-//TODO move to peer&client
+// read from reader queue and echo all messages back
+// TODO move to peer&client
 // remove
 func ReadProcessor(ntchan Ntchan) {
 
@@ -411,7 +413,7 @@ func ReadProcessor(ntchan Ntchan) {
 
 }
 
-//process from higher level chans into write queue
+// process from higher level chans into write queue
 func WriteProcessor(ntchan Ntchan) {
 	//TODO have a list and iterate over it
 	for {

@@ -2,7 +2,7 @@ package netio
 
 import "time"
 
-//only output the message read
+// only output the message read
 func NetConnectorSetupMock(ntchan Ntchan) {
 
 	vlog(ntchan, "NetConnectorSetup "+ntchan.SrcName+" "+ntchan.DestName)
@@ -16,8 +16,8 @@ func NetConnectorSetupMock(ntchan Ntchan) {
 
 }
 
-//read from reader queue and echo all messages back
-//TODO in mock space
+// read from reader queue and echo all messages back
+// TODO in mock space
 func ReadProcessorEcho(ntchan Ntchan) {
 
 	for {
@@ -36,8 +36,8 @@ func ReadProcessorEcho(ntchan Ntchan) {
 
 }
 
-//echo pipeline
-//TODO separate namespace
+// echo pipeline
+// TODO separate namespace
 func NetConnectorSetupEcho2(ntchan Ntchan, RequestReplyF func(Ntchan, string) string) {
 
 	vlog(ntchan, "NetConnectorSetup "+ntchan.SrcName+" "+ntchan.DestName)
@@ -64,7 +64,7 @@ func NetConnectorSetupEcho2(ntchan Ntchan, RequestReplyF func(Ntchan, string) st
 	//go WriteProducer(ntchan)
 }
 
-//simple echo net
+// simple echo net
 func MockNetConnectorSetupEcho(ntchan Ntchan) {
 
 	//read loop
@@ -93,4 +93,17 @@ func MockNetConnectorSetupEcho(ntchan Ntchan) {
 			NetWrite(ntchan, msgString)
 		}
 	}()
+}
+
+func NetConnectorSetupMockEcho(ntchan Ntchan) {
+
+	for {
+		msgString := <-ntchan.Reader_queue
+
+		if len(msgString) > 0 {
+			reply := "echo: " + msgString
+			ntchan.Writer_queue <- reply
+		}
+	}
+
 }
