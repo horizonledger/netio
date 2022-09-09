@@ -400,11 +400,8 @@ func ReadProcessor(ntchan Ntchan) {
 					}
 
 				} else {
-					//TODO currently no reply on fault messages
-					//reply := "error parsing >>> " + msgString + " (" + ntchan.DestName + ")"
-					//ntchan.Writer_queue <- reply
-					reply := "error parsing >>> " + msgString + " (" + ntchan.DestName + ")"
-					ntchan.Writer_queue <- reply
+
+					CloseOut(ntchan)
 				}
 
 			}
@@ -437,6 +434,16 @@ func WriteProcessor(ntchan Ntchan) {
 			//PUB?
 		}
 	}
+}
+
+func CloseOut(ntchan Ntchan) {
+	ntchan.Conn.Close()
+
+	//TODO currently no reply on fault messages
+	//reply := "error parsing >>> " + msgString + " (" + ntchan.DestName + ")"
+	//ntchan.Writer_queue <- reply
+	// reply := "error parsing >>> " + msgString + " (" + ntchan.DestName + ")"
+	// ntchan.Writer_queue <- reply
 }
 
 func HeartbeatPub(ntchan Ntchan) {
