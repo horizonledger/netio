@@ -390,13 +390,15 @@ func ReadProcessor(ntchan Ntchan) {
 					case "HEART":
 						ntchan.HEART_in <- msgString
 
+					default:
+						fmt.Println("unknown command", msg.MessageType)
 						//TODO
 						//case PUB
 						//case SUB
-					default:
-						//reply := "echo >>> " + msgString
-						//handle unknown command
-						ntchan.Writer_queue <- "unknown command"
+						// default:
+						// 	//reply := "echo >>> " + msgString
+						// 	//handle unknown command
+						// 	ntchan.Writer_queue <- "unknown command"
 					}
 
 				} else {

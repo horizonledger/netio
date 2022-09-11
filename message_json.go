@@ -27,7 +27,7 @@ type MessageJSON struct {
 	//timestamp
 }
 
-//marshal to json, check command
+// marshal to json, check command
 func NewJSONMessage(m Message) (MessageJSON, error) {
 	//fmt.Println("NewJSONMessage")
 	valid := validCMD(m.Command)
@@ -69,7 +69,7 @@ func ParseLineJson(msg_string string) (MessageJSON, error) {
 	var msgu MessageJSON
 	err := json.Unmarshal([]byte(msg_string), &msgu)
 	if err != nil {
-		fmt.Println("error decoding json ", err, msg_string)
+		fmt.Println("error decoding json ", err, "msg: ", msg_string)
 		return msgu, errors.New("error decoding json")
 	}
 	var msgTypes = StrSlice{"REP", "REQ", "HEART", "BROAD", "PUB"}
